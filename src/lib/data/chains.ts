@@ -16,7 +16,16 @@ export const BINANCE_SMART_CHAIN: ChainBaseConfig = {
   chainId: 56,
   blockTimeSeconds: 3,
   blocksPerYear: SECONDS_IN_YEAR / 3,
-  compoundsGuessimate: 1, //  Hard coded until API is set up
+  compoundsGuessimate: 2, //  Hard coded until API is set up
+};
+
+export const HARDHAT_CHAIN: ChainBaseConfig = {
+  name: 'Hardhat',
+  nativeToken: { coinGeckoId: 'binancecoin' },
+  chainId: 31337,
+  blockTimeSeconds: 3,
+  blocksPerYear: SECONDS_IN_YEAR / 3,
+  compoundsGuessimate: 2, //  Hard coded until API is set up
 };
 
 export const CHAIN_ID_MAP = {
@@ -26,28 +35,18 @@ export const CHAIN_ID_MAP = {
   [BINANCE_SMART_CHAIN.chainId]: {
     ...BINANCE_SMART_CHAIN,
   },
+  [HARDHAT_CHAIN.chainId]: {
+    ...BINANCE_SMART_CHAIN,
+  },
 };
 
 export const CURRENT_CHAINS: ChainBaseConfig[] = [
   BINANCE_SMART_CHAIN,
   HARMONY_CHAIN,
-  // {
-  //   name: 'Solana',
-  //   nativeToken: { coinGeckoId: 'solana' },
-  // },
-
+  HARDHAT_CHAIN,
   // {
   //   name: 'Polygon',
   //   nativeToken: { coinGeckoId: 'matic-network' },
-  // },
-
-  // {
-  //   name: 'Osmosis',
-  //   nativeToken: { coinGeckoId: 'osmosis' },
-  // },
-  // {
-  //   name: 'Terra',
-  //   nativeToken: { coinGeckoId: 'terra-luna' },
   // },
   // {
   //   name: 'Avalanche',
@@ -66,13 +65,5 @@ export const CURRENT_CHAINS: ChainBaseConfig[] = [
   // {
   //   name: 'Aurora',
   //   nativeToken: { coinGeckoId: 'aurora-near' },
-  // },
-  // {
-  //   name: 'Oasis',
-  //   nativeToken: { coinGeckoId: 'oasis-network' },
-  // },
-  // {
-  //   name: 'Cosmos',
-  //   nativeToken: { coinGeckoId: 'cosmos' },
   // },
 ];

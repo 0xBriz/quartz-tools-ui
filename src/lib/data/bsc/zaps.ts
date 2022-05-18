@@ -5,11 +5,13 @@ import {
   BUSD_INPUT_OPTION,
 } from '../common/zap-input-options';
 import { TOKENS } from '../tokens';
-import { PANCAKESWAP_ROUTER_ADDRESS } from './bsc-addresses';
+import {
+  PANCAKESWAP_ROUTER_ADDRESS,
+  VAULT_AMETHYST_BUSD_ADDRESS_BSC,
+} from './bsc-addresses';
 import { PAIR_AMETHYST_BUSD_BSC } from './pairs';
-import { VAULT_AMETHYST_BUSD_BSC } from './vaults';
 
-export const ZAP_UST_AMES_BSC: IZapPool = {
+export const ZAP_AMES_BUSD_BSC: IZapPool = {
   active: true,
   name: 'AMES-BUSD',
   poolId: 9,
@@ -35,13 +37,23 @@ export const ZAP_UST_AMES_BSC: IZapPool = {
     //   pathTokenInToLp1: [TOKENS.BNB.BSC, TOKENS.UST.BSC, TOKENS.AMETHYST.BSC],
     // },
     {
+      ...ASHARE_INPUT_OPTION,
+      address: TOKENS.ASHARE.BSC,
+      pathTokenInToLp0: [
+        TOKENS.ASHARE.BSC,
+        TOKENS.BUSD.BSC,
+        TOKENS.AMETHYST.BSC,
+      ],
+      pathTokenInToLp1: [TOKENS.ASHARE.BSC, TOKENS.BUSD.BSC],
+    },
+    {
       ...BUSD_INPUT_OPTION,
       address: TOKENS.BUSD.BSC,
       pathTokenInToLp0: [TOKENS.BUSD.BSC, TOKENS.AMETHYST.BSC],
       pathTokenInToLp1: [TOKENS.BUSD.BSC],
     },
   ],
-  vault: VAULT_AMETHYST_BUSD_BSC,
+  vaultAddress: VAULT_AMETHYST_BUSD_ADDRESS_BSC,
 };
 
 // export const ZAP_AMES_ASHARE_BSC: IZapPool = {
@@ -134,5 +146,5 @@ export const ZAP_UST_AMES_BSC: IZapPool = {
 // };
 
 export const ZAPS_BSC: ChainZapInfo = {
-  ZAPS: [ZAP_UST_AMES_BSC],
+  ZAPS: [ZAP_AMES_BUSD_BSC],
 };

@@ -5,6 +5,7 @@ import { getCoinGeckoData } from 'src/lib/utils/http-utils';
 import {
   BINANCE_SMART_CHAIN,
   CURRENT_CHAINS,
+  HARDHAT_CHAIN,
   HARMONY_CHAIN,
 } from '../../data/chains';
 
@@ -18,6 +19,7 @@ export class ChainService {
   private readonly currentSupportedChains = [
     HARMONY_CHAIN,
     BINANCE_SMART_CHAIN,
+    HARDHAT_CHAIN,
   ];
 
   constructor() {}

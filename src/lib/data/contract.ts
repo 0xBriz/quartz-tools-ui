@@ -2,23 +2,19 @@ import { QuartzContract } from '../types/quartz-contract.types';
 import {
   REWARD_POOL_ADDRESS_BSC,
   ZAPPER_ADDRESS_BSC,
+  ZAPPER_ADDRESS_HARDHAT,
 } from './bsc/bsc-addresses';
-import { BINANCE_SMART_CHAIN, HARMONY_CHAIN } from './chains';
-import {
-  REWARD_POOL_ADDRESS_HARMONY,
-  ZAPPER_ADDRESS_HARMONY,
-  ZAPPER_FLEX_ADDRESS_HARMONY,
-} from './harmony/contract-addresses';
+import { BINANCE_SMART_CHAIN, HARDHAT_CHAIN } from './chains';
 
-export const QUARTZ_CONTRACTS: {
+export const AMES_CONTRACTS: {
   [chainId: number]: { [name in QuartzContract]: string };
 } = {
   [BINANCE_SMART_CHAIN.chainId]: {
     Zapper: ZAPPER_ADDRESS_BSC,
     RewardPool: REWARD_POOL_ADDRESS_BSC,
   },
-  [HARMONY_CHAIN.chainId]: {
-    Zapper: ZAPPER_FLEX_ADDRESS_HARMONY,
-    RewardPool: REWARD_POOL_ADDRESS_HARMONY,
+  [HARDHAT_CHAIN.chainId]: {
+    Zapper: ZAPPER_ADDRESS_HARDHAT,
+    RewardPool: REWARD_POOL_ADDRESS_BSC,
   },
 };

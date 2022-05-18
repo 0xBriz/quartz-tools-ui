@@ -1,5 +1,6 @@
 import { BigNumber, Contract } from 'ethers';
 import { Strategy } from './classes/Strategy';
+import { IZapPool } from './zap.types';
 
 export interface IVault {
   active: boolean;
@@ -30,7 +31,7 @@ export interface IVault {
   contractApproved: boolean;
   pricePerShare?: number;
   strategy?: IStrategy;
-   stratRef?: Strategy;
+  stratRef?: Strategy;
   strategyContract?: Contract;
   geckoIdToken0?: string;
   geckoIdToken1?: string;
@@ -46,6 +47,7 @@ export interface IVault {
   depositBalance?: number; // Amount of LP deposited into vault
   depositLimitReached?: boolean;
   isProtocolVersion?: boolean;
+  zap?: IZapPool;
 }
 
 export interface IStrategy {

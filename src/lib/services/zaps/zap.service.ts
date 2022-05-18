@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ethers } from 'ethers';
+import { ContractReceipt, ethers } from 'ethers';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { QUARTZ_CONTRACTS } from 'src/lib/data/contract';
+import { AMES_CONTRACTS } from 'src/lib/data/contract';
 import { ZAPS } from 'src/lib/data/zaps';
 import { ERC20 } from 'src/lib/types/classes/erc20';
 import { Pair } from 'src/lib/types/classes/pair';
@@ -70,7 +70,7 @@ export class ZapService extends CommonServiceEvents {
 
   private setContract(chainId: number) {
     try {
-      const address = QUARTZ_CONTRACTS[chainId].Zapper;
+      const address = AMES_CONTRACTS[chainId].Zapper;
       if (!address) {
         throw new Error('setContract: Dafuq?');
       }
@@ -132,21 +132,43 @@ export class ZapService extends CommonServiceEvents {
     zap: IZapPool,
     zapResult: IZapResult,
     destination: ZapDestination
-  ) {
+  ): Promise<ContractReceipt> {
     try {
       let tx;
 
       if (destination === 'Farm') {
+        const chefAllowance = await zap.pair.allowance(
+          this.web3.web3Info.userAddress,
+          this.rewardPool.contract.address
+        );
+
+        if (chefAllowance.value.lt(zapResult.lpTokensBN)) {
+          await zap.pair.approve(
+            this.rewardPool.contract.address,
+            ethers.constants.MaxUint256
+          );
+        }
         tx = await this.rewardPool.deposit(zap.poolId, zapResult.lpTokensBN);
       }
 
       if (destination === 'Vault') {
+        const vaultAllowance = await zap.pair.allowance(
+          this.web3.web3Info.userAddress,
+          zap.vaultAddress
+        );
+
+        if (vaultAllowance.value.lt(zapResult.lpTokensBN)) {
+          await zap.pair.approve(zap.vaultAddress, ethers.constants.MaxUint256);
+        }
+
         tx = await this.vaultService.deposit(
-          zap.vault,
+          this.vaultService.getVault(zap.vaultAddress),
           zapResult.lpTokensBN,
           false
         );
       }
+
+      return tx;
     } catch (error) {
       console.error(error);
       this._error.next('Error depositing zap result');

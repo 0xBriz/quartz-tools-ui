@@ -45,6 +45,8 @@ export class VaultService {
       const chainVaults = VAULTS[chainId];
       if (!chainVaults) {
         this._error.next(new Error(`Unsupported chainId: ${chainId}`));
+        this._vaults.next([]);
+        this._init.next(false);
         return;
       }
 
@@ -145,6 +147,10 @@ export class VaultService {
       console.error(error);
       this._error.next(new Error(`Error initializing vault: ${vault.name}`));
     }
+  }
+
+  getVault(address: string) {
+    return this._vaults.value.find((v) => v.vaultAddress == address);
   }
 
   async deposit(vault: IVault, amount: ethers.BigNumber, initVaults = true) {

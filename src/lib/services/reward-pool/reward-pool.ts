@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ethers } from 'ethers';
-import { QUARTZ_CONTRACTS } from 'src/lib/data/contract';
+import { AMES_CONTRACTS } from 'src/lib/data/contract';
 import { FormattedResult } from 'src/lib/utils/formatting';
 import { awaitTransactionComplete } from 'src/lib/utils/web3-utils';
 import { Web3Service } from '../web3.service';
@@ -14,7 +14,7 @@ export class RewardPool {
     this.web3.web3.subscribe((web3Info) => {
       if (web3Info) {
         this.contract = new ethers.Contract(
-          QUARTZ_CONTRACTS[web3Info.chainId].RewardPool,
+          AMES_CONTRACTS[web3Info.chainId].RewardPool,
           REWARD_POOL_ABI,
           this.web3.web3Info.signer
         );

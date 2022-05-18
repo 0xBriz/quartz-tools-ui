@@ -9,6 +9,7 @@ import { IZapPool, TokenInputOption, ZapInput } from 'src/lib/types/zap.types';
 import { ensureEtherFormat } from 'src/lib/utils/formatting';
 import { trigger, transition, useAnimation } from '@angular/animations';
 import { fadeIn } from 'ng-animate';
+import { Web3Service } from 'src/lib/services/web3.service';
 
 @Component({
   selector: 'quartz-zap-in',
@@ -32,6 +33,7 @@ export class ZapInComponent implements OnInit {
     lpTokensUI: number;
     lpTokensBN: ethers.BigNumber;
   };
+
   depositing = false;
   depositingTo = null;
   depositResult: {
@@ -43,7 +45,8 @@ export class ZapInComponent implements OnInit {
     private readonly tokenService: TokenService,
     public readonly zapService: ZapService,
     private readonly vaultService: VaultService,
-    private readonly rewardPool: RewardPool
+    private readonly rewardPool: RewardPool,
+    private readonly web3: Web3Service
   ) {}
 
   async ngOnInit() {
@@ -111,32 +114,61 @@ export class ZapInComponent implements OnInit {
         this.depositing = true;
         this.depositingTo = depositingTo;
 
-        let tx: any;
+        const tx = await this.zapService.depositZapResult(
+          this.zap,
+          this.zapResult,
+          depositingTo
+        );
 
-        if (depositingTo === 'Farm') {
-          tx = await this.rewardPool.deposit(
-            this.zap.poolId,
-            this.zapResult.lpTokensBN
-          );
+        // // Allowances need to be checked
+        // if (depositingTo === 'Farm') {
+        //   tx = await this.doFarmDeposit();
+        // }
+
+        // if (depositingTo === 'Vault') {
+        //   tx = await this.vaultService.deposit(
+        //     this.vaultService.getVault(this.zap.vaultAddress),
+        //     this.zapResult.lpTokensBN,
+        //     false
+        //   );
+        // }
+
+        if (tx) {
+          this.depositResult = {};
+          this.depositResult.txHash = tx.transactionHash;
+          this.depositResult.explorerLink =
+            'https://bscscan.com/tx/' + this.depositResult.txHash;
+          this.depositing = false;
         }
-
-        if (depositingTo === 'Vault') {
-          tx = await this.vaultService.deposit(
-            this.zap.vault,
-            this.zapResult.lpTokensBN,
-            false
-          );
-        }
-
-        this.depositResult = {};
-        this.depositResult.txHash = tx.transactionHash;
-        this.depositResult.explorerLink =
-          'https://bscscan.com/tx/' + this.depositResult.txHash;
-        this.depositing = false;
 
         this.reset();
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  private async doFarmDeposit() {
+    try {
+      const chefAllowance = await this.zap.pair.allowance(
+        this.web3.web3Info.userAddress,
+        this.rewardPool.contract.address
+      );
+
+      if (chefAllowance.value.lt(this.zapResult.lpTokensBN)) {
+        await this.zap.pair.approve(
+          this.rewardPool.contract.address,
+          ethers.constants.MaxUint256
+        );
+      }
+
+      return this.rewardPool.deposit(
+        this.zap.poolId,
+        this.zapResult.lpTokensBN
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   private reset() {

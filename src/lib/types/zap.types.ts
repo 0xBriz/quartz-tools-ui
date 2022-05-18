@@ -36,7 +36,7 @@ export interface IZapPool extends ZapInput {
   routerAddress: string;
   tokenInputOptions?: TokenInputOption[];
   poolId: number;
-  vault?: IVault;
+  vaultAddress?: string;
 }
 
 export interface IZapResult {

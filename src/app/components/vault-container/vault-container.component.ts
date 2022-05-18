@@ -6,6 +6,7 @@ import { VaultService } from 'src/lib/services/vaults/vault.service';
 import { Web3Service } from 'src/lib/services/web3.service';
 import { trigger, transition, useAnimation } from '@angular/animations';
 import { fadeIn } from 'ng-animate';
+import { IVault } from 'src/lib/types/vault.types';
 
 @Component({
   selector: 'quartz-vault-container',
@@ -61,6 +62,10 @@ export class VaultsContainerComponent implements OnDestroy {
     this._subs.add(s1);
     this._subs.add(s2);
     this._subs.add(s3);
+  }
+
+  async doZap(vault: IVault) {
+    //
   }
 
   ngOnDestroy(): void {

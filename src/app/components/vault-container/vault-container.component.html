@@ -11,7 +11,8 @@
           <mat-panel-title>
             <h2 class="bold" style="margin: 0px; color: black">
               {{ vault.name }}
-              <!-- <quartz-zap-button></quartz-zap-button> -->
+              <quartz-zap-button (click)="doZap(vault)" *ngIf="vault.zap">
+              </quartz-zap-button>
               <span *ngIf="!vault.active">(Inactive)</span>
             </h2>
           </mat-panel-title>
