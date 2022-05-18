@@ -44,7 +44,6 @@ export class ZapInComponent implements OnInit {
   constructor(
     private readonly tokenService: TokenService,
     public readonly zapService: ZapService,
-    private readonly vaultService: VaultService,
     private readonly rewardPool: RewardPool,
     private readonly web3: Web3Service
   ) {}
@@ -120,19 +119,6 @@ export class ZapInComponent implements OnInit {
           depositingTo
         );
 
-        // // Allowances need to be checked
-        // if (depositingTo === 'Farm') {
-        //   tx = await this.doFarmDeposit();
-        // }
-
-        // if (depositingTo === 'Vault') {
-        //   tx = await this.vaultService.deposit(
-        //     this.vaultService.getVault(this.zap.vaultAddress),
-        //     this.zapResult.lpTokensBN,
-        //     false
-        //   );
-        // }
-
         if (tx) {
           this.depositResult = {};
           this.depositResult.txHash = tx.transactionHash;
@@ -143,29 +129,6 @@ export class ZapInComponent implements OnInit {
 
         this.reset();
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  private async doFarmDeposit() {
-    try {
-      const chefAllowance = await this.zap.pair.allowance(
-        this.web3.web3Info.userAddress,
-        this.rewardPool.contract.address
-      );
-
-      if (chefAllowance.value.lt(this.zapResult.lpTokensBN)) {
-        await this.zap.pair.approve(
-          this.rewardPool.contract.address,
-          ethers.constants.MaxUint256
-        );
-      }
-
-      return this.rewardPool.deposit(
-        this.zap.poolId,
-        this.zapResult.lpTokensBN
-      );
     } catch (error) {
       console.error(error);
     }
