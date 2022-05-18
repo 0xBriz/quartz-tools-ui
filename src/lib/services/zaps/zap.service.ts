@@ -5,10 +5,18 @@ import { QUARTZ_CONTRACTS } from 'src/lib/data/contract';
 import { ZAPS } from 'src/lib/data/zaps';
 import { ERC20 } from 'src/lib/types/classes/erc20';
 import { Pair } from 'src/lib/types/classes/pair';
-import { ChainZapInfo, IZapPool, ZapInput } from 'src/lib/types/zap.types';
+import {
+  ChainZapInfo,
+  IZapPool,
+  IZapResult,
+  ZapDestination,
+  ZapInput,
+} from 'src/lib/types/zap.types';
 import { roundDecimals } from 'src/lib/utils/formatting';
 import { awaitTransactionComplete } from 'src/lib/utils/web3-utils';
+import { RewardPool } from '../reward-pool/reward-pool';
 import { CommonServiceEvents } from '../service-events-common';
+import { VaultService } from '../vaults/vault.service';
 import { Web3Service } from '../web3.service';
 
 @Injectable({ providedIn: 'root' })
@@ -27,7 +35,11 @@ export class ZapService extends CommonServiceEvents {
 
   private _chainZapData: ChainZapInfo;
 
-  constructor(private readonly web3: Web3Service) {
+  constructor(
+    private readonly web3: Web3Service,
+    private readonly rewardPool: RewardPool,
+    private readonly vaultService: VaultService
+  ) {
     super();
 
     this.web3.web3.subscribe((info) => {
@@ -116,7 +128,32 @@ export class ZapService extends CommonServiceEvents {
     }
   }
 
-  async getZapResult(pairAddress: string) {
+  async depositZapResult(
+    zap: IZapPool,
+    zapResult: IZapResult,
+    destination: ZapDestination
+  ) {
+    try {
+      let tx;
+
+      if (destination === 'Farm') {
+        tx = await this.rewardPool.deposit(zap.poolId, zapResult.lpTokensBN);
+      }
+
+      if (destination === 'Vault') {
+        tx = await this.vaultService.deposit(
+          zap.vault,
+          zapResult.lpTokensBN,
+          false
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      this._error.next('Error depositing zap result');
+    }
+  }
+
+  async getZapResult(pairAddress: string): Promise<IZapResult> {
     const pair = new ERC20(pairAddress, this.web3.web3Info.signer);
     const lpTokens = await pair.balanceOf(this.web3.web3Info.userAddress);
 

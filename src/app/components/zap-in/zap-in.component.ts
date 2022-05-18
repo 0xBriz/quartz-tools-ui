@@ -52,7 +52,7 @@ export class ZapInComponent implements OnInit {
       tokenInAmount: new FormControl(null, [Validators.required]),
     });
 
-    // Show any already available to deposit if available
+    // Show any current tokens available to deposit
     this.zapResult = await this.zapService.getZapResult(this.zap.pairAddress);
   }
 
@@ -61,12 +61,8 @@ export class ZapInComponent implements OnInit {
       const tokenIn = this.zapGroup.get('tokenIn').value;
       const tokenInAmount = this.zapGroup.get('tokenInAmount').value;
 
-      console.log(tokenInAmount);
-
       let tokenInAmountBN = ethers.utils.parseUnits(String(tokenInAmount), 18);
       tokenInAmountBN = ensureEtherFormat(tokenInAmountBN);
-
-      console.log(ethers.utils.formatEther(tokenInAmountBN));
 
       const input: ZapInput = {
         tokenInAddress: tokenIn.address,

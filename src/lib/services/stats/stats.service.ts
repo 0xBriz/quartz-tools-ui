@@ -5,6 +5,7 @@ import { ERC20 } from 'src/lib/types/classes/erc20';
 import { Pair } from 'src/lib/types/classes/pair';
 import { IVault } from 'src/lib/types/vault.types';
 import { FormattedResult, roundDecimals } from 'src/lib/utils/formatting';
+import { ERC20TokenBase } from '../../types/classes/erc20-token-base';
 import { RewardPool } from '../reward-pool/reward-pool';
 import { Web3Service } from '../web3.service';
 
@@ -15,75 +16,68 @@ export class StatsService {
     private readonly rewardPool: RewardPool
   ) {}
 
-  async setVaultUserStats(vaultRef: IVault, userAddress: string) {
+  async getVaultUserStats(vaultRef: IVault, userAddress: string) {
     try {
-      let userWalletBalance: FormattedResult;
-      if (vaultRef.isSingleStake) {
-        const stakeToken = new ERC20(
-          vaultRef.lpAddress,
-          this.web3.web3Info.signer
+      try {
+        let userWalletBalance: FormattedResult;
+
+        if (vaultRef.isSingleStake) {
+          const stakeToken = new ERC20(
+            vaultRef.lpAddress,
+            this.web3.web3Info.signer
+          );
+          userWalletBalance = await stakeToken.balanceOf(userAddress);
+        } else {
+          const pair = new Pair(vaultRef.lpAddress, this.web3.web3Info.signer);
+          userWalletBalance = await pair.balanceOf(userAddress);
+        }
+
+        // Value of users balance
+        const walletBalanceBN: ethers.BigNumber = userWalletBalance.value;
+
+        const str = ethers.utils.formatEther(userWalletBalance.value);
+        userWalletBalance = new FormattedResult(
+          ethers.utils.parseEther((+str).toFixed(12))
         );
-        userWalletBalance = await stakeToken.balanceOf(userAddress);
-      } else {
-        const pair = new Pair(vaultRef.lpAddress, this.web3.web3Info.signer);
-        userWalletBalance = await pair.balanceOf(userAddress);
-      }
 
-      // 0.000095553488826912
-      // let userBalance = new FormattedResult(
-      //   ethers.utils.parseEther('0.000095553488826912')
-      // );
+        let userLpWalletBalance;
 
-      vaultRef.walletBalanceBN = userWalletBalance.value;
-      // Trim user balance to avoid weird long decimal issues
-      const str = ethers.utils.formatEther(userWalletBalance.value);
-      userWalletBalance = new FormattedResult(
-        ethers.utils.parseEther((+str).toFixed(12))
-      );
+        if (userWalletBalance.toNumber() > 0.0000001) {
+          userLpWalletBalance = Number(
+            ethers.utils.formatEther(userWalletBalance.value)
+          );
+        } else {
+          userLpWalletBalance = 0;
+        }
 
-      if (userWalletBalance.toNumber() > 0.0000000001) {
-        vaultRef.userLpWalletBalance = userWalletBalance.toNumber();
-      } else {
-        vaultRef.userLpWalletBalance = 0;
-      }
+        console.log('User wallet LP: ' + userLpWalletBalance);
 
-      const pricePerFullShare = new FormattedResult(
-        await vaultRef.contract.getPricePerFullShare()
-      );
-      vaultRef.pricePerShare = pricePerFullShare.toNumber();
+        let [pricePerFullShare, userLpDepositBalanceBN] = await Promise.all([
+          vaultRef.contract.getPricePerFullShare(),
+          vaultRef.contract.balanceOf(userAddress),
+        ]);
 
-      let userLpDepositBalance: ethers.BigNumber =
-        await vaultRef.contract.balanceOf(userAddress);
+        const pricePerShare = new FormattedResult(pricePerFullShare).toNumber();
+        const userAmountTimesPricePerShare =
+          new FormattedResult(userLpDepositBalanceBN).toNumber() *
+          pricePerShare;
 
-      // console.log(ethers.utils.formatEther(userLpDepositBalance));
+        const userLpDepositBalanceFull = userLpDepositBalanceBN.isZero()
+          ? 0
+          : userAmountTimesPricePerShare;
+        const userLpDepositBalanceUI = userLpDepositBalanceBN.isZero()
+          ? 0
+          : roundDecimals(userAmountTimesPricePerShare, 12);
 
-      vaultRef.userLpBaseDepositBalance = new FormattedResult(
-        userLpDepositBalance
-      ).toNumber();
-
-      const fixed = vaultRef.userLpBaseDepositBalance.toFixed(18);
-      // console.log(fixed);
-      // console.log(ethers.utils.formatEther(ethers.utils.parseEther(fixed)));
-
-      const amountTimesPricePerShare =
-        new FormattedResult(userLpDepositBalance).toNumber() *
-        pricePerFullShare.toNumber();
-
-      vaultRef.userLpDepositBalanceFull = userLpDepositBalance.isZero()
-        ? 0
-        : amountTimesPricePerShare;
-
-      vaultRef.userLpDepositBalanceUI = userLpDepositBalance.isZero()
-        ? 0
-        : roundDecimals(amountTimesPricePerShare, 8);
-
-      if (Number(fixed) > 0.000000001) {
-        vaultRef.userLpDepositBalanceBN = ethers.utils.parseEther(
-          String(amountTimesPricePerShare)
-        );
-      } else {
-        vaultRef.userLpDepositBalanceBN = ethers.constants.Zero;
-      }
+        return {
+          walletBalanceBN,
+          userLpWalletBalance,
+          pricePerShare,
+          userLpDepositBalanceFull,
+          userLpDepositBalanceUI,
+          userLpDepositBalanceBN,
+        };
+      } catch (error) {}
     } catch (error) {
       console.error(error);
       throw new Error(`Error getting vault stats: ${vaultRef.name}`);
@@ -101,88 +95,21 @@ export class StatsService {
   }
 
   async getPairVaultTVL(vault: IVault) {
-    const pair = new ethers.Contract(
-      vault.lpAddress,
-      [
-        'function token0() view returns (address)',
-        'function token1() view returns (address)',
-        'function balanceOf(address) view returns (uint256)',
-        'function totalSupply() view returns (uint256)',
-        'function getReserves() view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast)',
-      ],
-      this.web3.web3Info.provider
+    const pair = new Pair(vault.lpAddress, this.web3.web3Info.signer);
+
+    const { totalValueOfChefPoolUSD, chefLpBalance } =
+      await this.getChefInfoForPair(pair, vault);
+
+    const vaultTVL = await this.getStrategyTVL(
+      vault,
+      totalValueOfChefPoolUSD,
+      chefLpBalance.toNumber()
     );
-
-    const [token0, token1] = await Promise.all([pair.token0(), pair.token1()]);
-    const abi = ['function balanceOf(address) view returns (uint256)'];
-    const t0 = new ethers.Contract(token0, abi, this.web3.web3Info.provider);
-    const t1 = new ethers.Contract(token1, abi, this.web3.web3Info.provider);
-
-    let [pairToken0Amount, pairToken1Amount, pairTotalSupply] =
-      await Promise.all([
-        t0.balanceOf(pair.address), // Same idea as `getReserves()` on the pair
-        t1.balanceOf(pair.address), // Same idea as `getReserves()` on the pair
-        pair.totalSupply(),
-      ]);
-
-    pairToken0Amount = new FormattedResult(pairToken0Amount);
-    pairToken1Amount = new FormattedResult(pairToken1Amount);
-    pairTotalSupply = new FormattedResult(pairTotalSupply);
-
-    // Check quantity of pair LP token deposited into chef contract
-    const chefLpBalance = new FormattedResult(
-      await pair.balanceOf(this.rewardPool.contract.address)
-    );
-
-    // Get reward pools % ownership of the pairs total supply
-    const chefPercentOwnership =
-      chefLpBalance.toNumber(4) / pairTotalSupply.toNumber(4);
-
-    const chefPercentOfToken0 =
-      pairToken0Amount.toNumber() * chefPercentOwnership;
-    const chefPercentOfToken1 =
-      pairToken1Amount.toNumber() * chefPercentOwnership;
-
-    // Get current external USD price for each token in the pair
-    const [priceToken0, priceToken1] = await Promise.all([
-      vault.fetchPriceToken0(),
-      vault.fetchPriceToken1(),
-    ]);
-
-    // The percentage of token0 and token1 for the pool * their price
-    // will gives us the total current USD value of the chefs pool
-    const poolValueUsdToken0 = chefPercentOfToken0 * priceToken0;
-    const poolValueUsdToken1 = chefPercentOfToken1 * priceToken1;
-    const totalValueOfChefPoolUSD = poolValueUsdToken0 + poolValueUsdToken1;
-
-    const stratInfo = await this.rewardPool.userInfo(
-      vault.poolId,
-      vault.strategy.address
-    );
-
-    // Strats LP tokens deposited in reward pool/chef
-    const stratLpDepositBalance = new FormattedResult(stratInfo.amount);
-
-    let stratPercentOfChef =
-      stratLpDepositBalance.toNumber(4) / chefLpBalance.toNumber(4);
-
-    const vaultTVL = totalValueOfChefPoolUSD * stratPercentOfChef;
-
-    const vaultTotalSupply = new FormattedResult(
-      await vault.contract.totalSupply()
-    );
-    const userBalance = new FormattedResult(
-      await vault.contract.balanceOf(this.web3.web3Info.userAddress)
-    );
-
-    const userPercentOfStrat =
-      userBalance.toNumber() / vaultTotalSupply.toNumber();
-
-    const userActualValue = userPercentOfStrat * vaultTVL;
-
-    vault.userValueUSD = userActualValue;
 
     vault.totalValueLocked = vaultTVL;
+
+    const { userValueUSD } = await this.getUserVaultInfo(vault);
+    vault.userValueUSD = userValueUSD;
 
     const { APR, dailyAPR, APY } = await this.getVaultAPRs(
       vault,
@@ -197,9 +124,93 @@ export class StatsService {
     };
   }
 
+  async getUserVaultInfo(vault: IVault) {
+    let [vaultTotalSupply, userBalance] = await Promise.all([
+      vault.contract.totalSupply(),
+      vault.contract.balanceOf(this.web3.web3Info.userAddress),
+    ]);
+    vaultTotalSupply = new FormattedResult(vaultTotalSupply);
+    userBalance = new FormattedResult(userBalance);
+
+    const userPercentOfStrat =
+      userBalance.toNumber(4) / vaultTotalSupply.toNumber(4);
+
+    const userValueUSD = userPercentOfStrat * vault.totalValueLocked;
+
+    return {
+      userValueUSD,
+    };
+  }
+
+  private async getChefInfo(tokenContract: ERC20TokenBase) {
+    const totalSupply = await tokenContract.totalSupply();
+    const chefLpBalance = await tokenContract.balanceOf(
+      this.rewardPool.contract.address
+    );
+
+    // Get rewards % ownership of the pairs total supply
+    const chefPercentOwnership =
+      chefLpBalance.toNumber(4) / totalSupply.toNumber(4);
+
+    return {
+      totalSupply: totalSupply.toNumber(),
+      chefLpBalance,
+      chefPercentOwnership,
+    };
+  }
+
+  async getChefInfoForPair(pair: Pair, vault: IVault) {
+    const { pairToken0Amount, pairToken1Amount, pairTotalSupply } =
+      await this._getPairTokenInfo(pair);
+
+    const { chefLpBalance, chefPercentOwnership } = await this.getChefInfo(
+      pair
+    );
+
+    const chefPercentOfToken0 =
+      pairToken0Amount.toNumber() * chefPercentOwnership;
+    const chefPercentOfToken1 =
+      pairToken1Amount.toNumber() * chefPercentOwnership;
+
+    const [priceToken0, priceToken1] = await Promise.all([
+      vault.fetchPriceToken0(),
+      vault.fetchPriceToken1(),
+    ]);
+
+    // The percentage of token0 and token1 for the pool * their price
+    // will gives us the total current USD value of the chefs pool
+    const poolValueUsdToken0 = chefPercentOfToken0 * priceToken0;
+    const poolValueUsdToken1 = chefPercentOfToken1 * priceToken1;
+    const totalValueOfChefPoolUSD = poolValueUsdToken0 + poolValueUsdToken1;
+
+    return {
+      totalValueOfChefPoolUSD,
+      chefLpBalance,
+    };
+  }
+
+  private async _getPairTokenInfo(pair: Pair) {
+    const [token0, token1] = await Promise.all([pair.token0(), pair.token1()]);
+    const t0 = new ERC20(token0, this.web3.web3Info.signer);
+    const t1 = new ERC20(token1, this.web3.web3Info.signer);
+
+    let [pairToken0Amount, pairToken1Amount, pairTotalSupply] =
+      await Promise.all([
+        t0.balanceOf(pair.address), // Same idea as `getReserves()` on the pair
+        t1.balanceOf(pair.address), // Same idea as `getReserves()` on the pair
+        pair.totalSupply(),
+      ]);
+
+    return {
+      pairToken0Amount,
+      pairToken1Amount,
+      pairTotalSupply,
+    };
+  }
+
   private async getStrategyTVL(
     vault: IVault,
-    poolTVL: number,
+    totalValueOfChefPoolUSD: number,
     chefLpBalance: number
   ) {
     const stratInfo = await this.rewardPool.userInfo(
@@ -208,7 +219,7 @@ export class StatsService {
     );
 
     const stratLpBalance = new FormattedResult(stratInfo.amount);
-    const stakingTokenPrice = poolTVL / chefLpBalance;
+    const stakingTokenPrice = totalValueOfChefPoolUSD / chefLpBalance;
     return stratLpBalance.toNumber() * stakingTokenPrice;
   }
 
@@ -258,23 +269,6 @@ export class StatsService {
     };
   }
 
-  private async getChefInfo(tokenContract) {
-    const totalSupply = await tokenContract.totalSupply();
-    const chefLpBalance = await tokenContract.balanceOf(
-      this.rewardPool.contract.address
-    );
-
-    // Get rewards % ownership of the pairs total supply
-    const chefPercentOwnership =
-      chefLpBalance.toNumber(4) / totalSupply.toNumber(4);
-
-    return {
-      totalSupply: totalSupply.toNumber(),
-      chefLpBalance,
-      chefPercentOwnership,
-    };
-  }
-
   async getVaultAPRs(vault: IVault, poolTVL: number) {
     const chain = CHAIN_ID_MAP[this.web3.web3Info.chainId];
 
@@ -320,6 +314,7 @@ export class StatsService {
         String(poolAllocPoints.toNumber(4) / totalAllocationPoints.toNumber(4))
       )
     );
+
     return {
       poolAllocPoints,
       totalAllocationPoints,

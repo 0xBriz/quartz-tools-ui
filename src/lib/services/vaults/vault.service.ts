@@ -1,20 +1,16 @@
 import { Injectable } from '@angular/core';
 import { ethers } from 'ethers';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { VAULTS } from 'src/lib/data/vaults';
+import { VAULTS } from '../../data/vaults';
 import { ERC20 } from 'src/lib/types/classes/erc20';
-import { ERC20TokenBase } from 'src/lib/types/classes/erc20-token-base';
 import { IVault } from 'src/lib/types/vault.types';
-import {
-  ensureEtherFormat,
-  FormattedResult,
-  roundDecimals,
-} from 'src/lib/utils/formatting';
 import { awaitTransactionComplete } from 'src/lib/utils/web3-utils';
 import { StatsService } from '../stats/stats.service';
-import { TokenService } from '../tokens/token.service';
 import { Web3Service } from '../web3.service';
-import { VAULT_ABI } from './vault-abi';
+import { Strategy } from '../../types/classes/Strategy';
+import { Pair } from '../../types/classes/pair';
+import { formatEther } from 'ethers/lib/utils';
+import { VAULT_ABI } from 'src/lib/abis/vault-abi';
 
 @Injectable({ providedIn: 'root' })
 export class VaultService {
@@ -39,7 +35,6 @@ export class VaultService {
   }
 
   constructor(
-    private readonly tokens: TokenService,
     private readonly web3: Web3Service,
     private readonly statService: StatsService
   ) {}
@@ -66,10 +61,25 @@ export class VaultService {
         };
 
         await this._initVaultFields(vaultRef);
-        await this.statService.setVaultUserStats(
+
+        const {
+          walletBalanceBN,
+          pricePerShare,
+          userLpDepositBalanceFull,
+          userLpDepositBalanceUI,
+          userLpWalletBalance,
+          userLpDepositBalanceBN,
+        } = await this.statService.getVaultUserStats(
           vaultRef,
           this.web3.web3Info.userAddress
         );
+        vaultRef.walletBalanceBN = walletBalanceBN;
+        vaultRef.userLpWalletBalance = userLpWalletBalance;
+        vaultRef.pricePerShare = pricePerShare;
+        vaultRef.userLpDepositBalanceFull = userLpDepositBalanceFull;
+        vaultRef.userLpDepositBalanceUI = userLpDepositBalanceUI;
+        vaultRef.userLpDepositBalanceBN = userLpDepositBalanceBN;
+
         await this._setVaultAllowance(vaultRef);
         vaults.push(vaultRef);
       }
@@ -87,9 +97,8 @@ export class VaultService {
   private async _setVaultAllowance(vault: IVault) {
     try {
       // Will handle single stake and pairs just the same
-      const tokenContract = new ERC20TokenBase(
+      const tokenContract = new Pair(
         vault.lpAddress,
-        ['function allowance(address, address) public view returns(uint256)'],
         this.web3.web3Info.signer
       );
       // Check/set allowance for vault pair
@@ -97,6 +106,7 @@ export class VaultService {
         this.web3.web3Info.userAddress,
         vault.vaultAddress
       );
+
       if (allowance.value.gt(ethers.constants.Zero)) {
         vault.contractApproved = true;
       }
@@ -107,72 +117,30 @@ export class VaultService {
 
   private async _initVaultFields(vault: IVault) {
     try {
-      vault.contract = new ethers.Contract(
-        vault.vaultAddress,
-        VAULT_ABI,
-        this.web3.web3Info.signer
-      );
-
-      vault.strategyContract = new ethers.Contract(
+      vault.contract = this.getVaultInstance(vault.vaultAddress);
+      vault.stratRef = new Strategy(
         vault.strategy.address,
-        [
-          'function paused() view returns (bool)',
-          'function withdrawalFee() view returns (uint256)',
-          'function protocolWithdrawalFee() view returns (uint256)',
-        ],
         this.web3.web3Info.provider
       );
 
-      const promises = [
-        vault.contract.name(),
-        vault.contract.symbol(),
-        vault.strategyContract.paused(),
-        vault.strategyContract.withdrawalFee(),
-      ];
+      if (vault.isProtocolVersion) {
+        const protocolWithdrawalFee =
+          await vault.stratRef.protocolWithdrawalFee();
+        vault.strategy.protocolWithdrawFee = protocolWithdrawalFee / 10;
+      }
 
       // Get/set basic vault token info
-      const [name, symbol, paused, withdrawalFee] = await Promise.all(promises);
-
-      if (vault.isV2) {
-        const promises = [
-          vault.strategyContract.protocolWithdrawalFee(),
-          vault.contract.depositLimitsEnabled(),
-          vault.contract.userDepositLimit(),
-          vault.contract.totalDepositLimit(),
-          vault.contract.balance(),
-        ];
-        const [
-          protocolWithdrawalFee,
-          depositLimitsEnabled,
-          userDepositLimit,
-          totalDepositLimit,
-          depositBalance,
-        ] = await Promise.all(promises);
-
-        vault.strategy.protocolWithdrawFee = protocolWithdrawalFee / 10;
-        vault.depositLimitsEnabled = depositLimitsEnabled;
-        vault.userDepositLimit = userDepositLimit / 10e17;
-        vault.totalDepositLimit = totalDepositLimit / 10e17;
-        const fmt = new FormattedResult(depositBalance);
-        vault.depositBalance = Math.round(fmt.toNumber());
-        //vault.depositBalance = 2000;
-
-        // if (vault.depositBalance >= vault.totalDepositLimit) {
-        //   vault.depositBalance = vault.totalDepositLimit;
-        //   vault.depositLimitReached = true;
-        // }
-      }
-
-      if (vault.protocolVersion) {
-        const protocolWithdrawalFee =
-          await vault.strategyContract.protocolWithdrawalFee();
-        vault.strategy.protocolWithdrawFee = protocolWithdrawalFee / 10;
-      }
+      const [name, symbol, paused, withdrawalFee] = await Promise.all([
+        vault.contract.name(),
+        vault.contract.symbol(),
+        vault.stratRef.paused(),
+        vault.stratRef.withdrawalFee(),
+      ]);
 
       vault.tokenName = name;
       vault.symbol = symbol;
       vault.strategy.paused = paused;
-      vault.strategy.withdrawlFee = withdrawalFee.toNumber() / 1000;
+      vault.strategy.withdrawlFee = withdrawalFee;
     } catch (error) {
       console.error(error);
       this._error.next(new Error(`Error initializing vault: ${vault.name}`));
@@ -203,14 +171,6 @@ export class VaultService {
     initVaults: boolean
   ) {
     try {
-      if (amountIn.isZero()) {
-        this._error.next(new Error("Can't deposit zero"));
-        return;
-      }
-
-      amountIn = ensureEtherFormat(amountIn);
-      console.log(amountIn.toString());
-
       await this.approveVaultIfNeeded(vault, amountIn, vault.lpAddress);
       const vaultContract = this.getVaultInstance(vault.vaultAddress);
       const depositTx = await vaultContract.deposit(amountIn);
@@ -258,7 +218,7 @@ export class VaultService {
     try {
       this._operationActive.next('Checking allowances..');
       const token = new ERC20(erc20Address, this.web3.web3Info.signer);
-      const allowance = await token.allowance(
+      let allowance = await token.allowance(
         this.web3.web3Info.userAddress,
         vault.vaultAddress
       );
@@ -278,14 +238,19 @@ export class VaultService {
     try {
       this._operationActive.next('Approving contract...');
       // Will handle single stake and pairs just the same
-      const tokenContract = new ethers.Contract(
+      const tokenContract = new ERC20(
         vault.lpAddress,
-        ['function approve(address, uint256) public returns(bool)'],
         this.web3.web3Info.signer
       );
-      const tx = await tokenContract.approve(vault.vaultAddress, amount);
-      await awaitTransactionComplete(tx);
+      await tokenContract.approve(vault.vaultAddress, amount);
       vault.contractApproved = true;
+
+      let allowance = await tokenContract.allowance(
+        this.web3.web3Info.userAddress,
+        vault.vaultAddress
+      );
+      console.log(formatEther(allowance.value));
+
       this._operationActive.next('Approvals complete.');
     } catch (error) {
       console.error(error);

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SwapContainerComponent } from './swap-container.component';
+import { ZapButtonComponent } from './zap-button.component';
 
-describe('SwapContainerComponent', () => {
-  let component: SwapContainerComponent;
-  let fixture: ComponentFixture<SwapContainerComponent>;
+describe('ZapButtonComponent', () => {
+  let component: ZapButtonComponent;
+  let fixture: ComponentFixture<ZapButtonComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SwapContainerComponent ]
+      declarations: [ ZapButtonComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SwapContainerComponent);
+    fixture = TestBed.createComponent(ZapButtonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

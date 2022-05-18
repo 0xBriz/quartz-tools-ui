@@ -100,7 +100,7 @@
 
 
     <div class="alert alert-success clearfix" *ngIf="depositResult" [@fadeIn]="fadeIn">
-      <span style="display:inline-block; margin-bottom: 15px;">
+      <span style="display:inline-block; margin-bottom: 15px; margin-top: 5px">
         Deposit Complete. <a href="{{ depositResult.explorerLink }}" target="__blank">View on explorer</a>
       </span>
       <mat-icon class="float-right cursor" (click)="depositResult = null">clear</mat-icon>

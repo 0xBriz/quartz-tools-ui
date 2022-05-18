@@ -3,6 +3,8 @@ import { ERC20 } from './classes/erc20';
 import { Pair } from './classes/pair';
 import { IVault } from './vault.types';
 
+export type ZapDestination = 'Vault' | 'Farm';
+
 // Required arguments to contract zapInWithPath function
 export interface ZapContractArgs {
   tokenInAddress: string;
@@ -35,6 +37,11 @@ export interface IZapPool extends ZapInput {
   tokenInputOptions?: TokenInputOption[];
   poolId: number;
   vault?: IVault;
+}
+
+export interface IZapResult {
+  lpTokensUI: number;
+  lpTokensBN: ethers.BigNumber;
 }
 
 export type TokenZapPathMap = { [tokenAddress: string]: string[] };

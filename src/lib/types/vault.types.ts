@@ -1,4 +1,5 @@
 import { BigNumber, Contract } from 'ethers';
+import { Strategy } from './classes/Strategy';
 
 export interface IVault {
   active: boolean;
@@ -29,6 +30,7 @@ export interface IVault {
   contractApproved: boolean;
   pricePerShare?: number;
   strategy?: IStrategy;
+   stratRef?: Strategy;
   strategyContract?: Contract;
   geckoIdToken0?: string;
   geckoIdToken1?: string;
@@ -43,7 +45,7 @@ export interface IVault {
   depositLimitsEnabled?: boolean;
   depositBalance?: number; // Amount of LP deposited into vault
   depositLimitReached?: boolean;
-  protocolVersion?: boolean;
+  isProtocolVersion?: boolean;
 }
 
 export interface IStrategy {

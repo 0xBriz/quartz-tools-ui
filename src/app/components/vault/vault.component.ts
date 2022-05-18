@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatInput } from '@angular/material/input';
 import { ethers } from 'ethers';
+import { formatEther } from 'ethers/lib/utils';
 import { Subscription } from 'rxjs';
 import { StatsService } from 'src/lib/services/stats/stats.service';
 import { VaultService } from 'src/lib/services/vaults/vault.service';
@@ -87,11 +88,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   async setVaultWithdraw() {
     if (this._withdrawAmountMachine.gt(ethers.constants.Zero)) {
       this.vault.loading = true;
-      console.log(this.vault.userLpDepositBalanceBN.toString());
-      console.log(this._withdrawAmountMachine.toString());
-      console.log(ethers.utils.formatEther(this.vault.userLpDepositBalanceBN));
-      console.log(ethers.utils.formatEther(this._withdrawAmountMachine));
-
       await this.vaultService.withdraw(this.vault, this._withdrawAmountMachine);
       this.vault.loading = false;
       this.resetInputs();
@@ -106,7 +102,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   onDepositSliderInputChange(value: number) {
-    if (value === 0) {
+      if (value === 0) {
       this._depositAmountMachine = ethers.constants.Zero;
       this.depositInput.value = '0';
       return;
@@ -118,15 +114,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const depositAmountHuman = this.vault.userLpWalletBalance * (value / 100);
-    this.depositInput.value = String(depositAmountHuman);
-    this._depositAmountMachine = ethers.utils.parseEther(
-      this.depositInput.value
-    );
+    const percentage = this.vault.walletBalanceBN.mul(value).div(100);
+    this.depositInput.value = formatEther(percentage);
+    this._depositAmountMachine = percentage;
   }
 
   onWithdrawSliderInputChange(value: number) {
-    if (value === 0) {
+        if (value === 0) {
       this._withdrawAmountMachine = ethers.constants.Zero;
       this.withdrawInput.value = '0';
       return;
@@ -138,13 +132,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const withdrawAmountHuman =
-      this.vault.userLpDepositBalanceUI * (value / 100);
-    this.withdrawInput.value = String(withdrawAmountHuman);
-
-    this._withdrawAmountMachine = ethers.utils.parseEther(
-      this.withdrawInput.value
-    );
+    const percentage = this.vault.userLpDepositBalanceBN.mul(value).div(100);
+    this.withdrawInput.value = formatEther(percentage);
+    this._withdrawAmountMachine = percentage;
   }
 
   async setApproval() {

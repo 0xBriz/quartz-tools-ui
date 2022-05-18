@@ -4,7 +4,7 @@ import { QUARTZ_CONTRACTS } from 'src/lib/data/contract';
 import { FormattedResult } from 'src/lib/utils/formatting';
 import { awaitTransactionComplete } from 'src/lib/utils/web3-utils';
 import { Web3Service } from '../web3.service';
-import { REWARD_POOL_ABI } from './reward-pool-abi';
+import { REWARD_POOL_ABI } from '../../abis/reward-pool-abi';
 
 @Injectable({ providedIn: 'root' })
 export class RewardPool {

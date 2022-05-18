@@ -1,19 +1,14 @@
 import { getPairInfo } from 'src/lib/utils/dex-screener';
+import { PAIR_AMETHYST_BUSD_BSC, PAIR_ASHARE_BUSD_BSC } from './pairs';
 
 export const getAsharePrice = async () => {
-  const { pair } = await getPairInfo(
-    'bsc',
-    '0x39846550Ef3Cb8d06E3CFF52845dF42F71Ac3851'
-  );
+  const { pair } = await getPairInfo('bsc', PAIR_ASHARE_BUSD_BSC);
 
   return Number(pair.priceUsd);
 };
 
 export const getAmethystPrice = async () => {
-  const { pair } = await getPairInfo(
-    'bsc',
-    '0x6f78A0d31aDC7C9FB848850F9D2a40Da5858Ad03'
-  );
+  const { pair } = await getPairInfo('bsc', PAIR_AMETHYST_BUSD_BSC);
 
   return Number(pair.priceUsd);
 };

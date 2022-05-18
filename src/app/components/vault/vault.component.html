@@ -1,18 +1,25 @@
-
 <div class="row">
   <div class="banner-container" *ngIf="vault.strategy.paused === true">
     <div class="banner">Paused</div>
   </div>
 
-  <div class="col-12 clearfix" *ngIf="vault.loading" style="margin-bottom: 10px;">
+  <div
+    class="col-12 clearfix"
+    *ngIf="vault.loading"
+    style="margin-bottom: 10px"
+  >
     <mat-spinner diameter="35" class="float-right"></mat-spinner>
   </div>
 
-  <div class="col-md-12" *ngIf="vault.userValueUSD > 0" style="margin-bottom: 5px;">
+  <div
+    class="col-md-12"
+    *ngIf="vault.userValueUSD > 0"
+    style="margin-bottom: 5px"
+  >
     <div class="row">
       <div class="col-md-12 col-12 col-xl-2"></div>
       <div class="col-md-6 col-6 col-xl-2"></div>
-      <div class="col-md-6 col-6  col-xl-2">
+      <div class="col-md-6 col-6 col-xl-2">
         <div class="text-center label-value">
           {{ vault.userValueUSD | currency }}
         </div>
@@ -23,54 +30,40 @@
   <div class="col-md-12">
     <div class="row">
       <div class="col-md-12 col-12 col-xl-2 bold vault-info">
-        <img src="{{ vault.logoURI }}" alt="">
+        <img src="{{ vault.logoURI }}" alt="" />
       </div>
 
       <div class="col-md-6 col-6 col-xl-2 bold balance">
         <div class="text-center label-value">
           {{ vault.userLpWalletBalance }}
         </div>
-        <div class="text-center">
-            Wallet Balance
-        </div>
+        <div class="text-center">Wallet Balance</div>
       </div>
 
-      <div class="col-md-6 col-6  col-xl-2 bold balance">
+      <div class="col-md-6 col-6 col-xl-2 bold balance">
         <div class="text-center label-value">
-
-
           {{ vault.userLpDepositBalanceUI }}
         </div>
-        <div class="text-center">
-            Deposit Balance
-        </div>
+        <div class="text-center">Deposit Balance</div>
       </div>
 
-      <div class="col-md-4 col-4  col-xl-2 bold">
+      <div class="col-md-4 col-4 col-xl-2 bold">
         <div class="text-center label-value">
           {{ vault.APY | percent }}
         </div>
-        <div class="text-center">
-            APY
-        </div>
+        <div class="text-center">APY</div>
       </div>
 
-      <div class="col-md-4 col-4  col-xl-2 bold">
-        <div class="text-center label-value">
-          {{ vault.dailyAPR }}%
-        </div>
-        <div class="text-center">
-            Daily %
-        </div>
+      <div class="col-md-4 col-4 col-xl-2 bold">
+        <div class="text-center label-value">{{ vault.dailyAPR }}%</div>
+        <div class="text-center">Daily %</div>
       </div>
 
-      <div class="col-md-4 col-4  col-xl-2 bold">
+      <div class="col-md-4 col-4 col-xl-2 bold">
         <div class="text-center label-value">
-          {{ vault.totalValueLocked | currency  }}
+          {{ vault.totalValueLocked | currency }}
         </div>
-        <div class="text-center">
-            TVL
-        </div>
+        <div class="text-center">TVL</div>
       </div>
     </div>
   </div>
@@ -79,16 +72,15 @@
     <div class="row">
       <div class="col-md-6"></div>
       <div class="col-md-6">
-        <p class="bold"> {{ vault.symbol }}: {{ vault.userLpDepositBalanceFull }}</p>
+        <p class="bold">
+          {{ vault.symbol }}: {{ vault.userLpDepositBalanceFull }}
+        </p>
       </div>
     </div>
     <div class="row">
       <div class="col-md-6 deposit-withdrawl">
         <mat-form-field appearance="outline">
-          <input
-            type="text" matInput
-            #depositInput
-            [disabled]="true">
+          <input type="text" matInput #depositInput [disabled]="true" />
         </mat-form-field>
         <mat-slider
           [disabled]="!vault.active || !vault.userLpWalletBalance"
@@ -97,33 +89,23 @@
           [step]="1"
           thumbLabel
           tickInterval="25"
-          (input)="onDepositSliderInputChange($event.value)">
+          (input)="onDepositSliderInputChange($event.value)"
+        >
         </mat-slider>
 
         <div class="range-meter clearfix">
-          <span class="range-meter-num">
-            0%
-          </span>
-          <span class="range-meter-num float-right">
-            100%
-          </span>
+          <span class="range-meter-num"> 0% </span>
+          <span class="range-meter-num float-right"> 100% </span>
         </div>
 
         <div class="clearfix">
-          <ul
-            class="list-group deposit-list-group list-group-horizontal-sm"
-            *ngIf="vault.isV2 && vault.depositLimitsEnabled">
-            <li class="list-group-item bold">User Deposit Limit: {{ vault.userDepositLimit}}</li>
-            <li class="list-group-item bold">
-              Total Deposits:  {{ vault.depositBalance }}/{{ vault.totalDepositLimit}} (current limit)</li>
-          </ul>
-
           <button
             *ngIf="!vault.contractApproved"
             mat-raised-button
             class="float-right quartz-btn"
             (click)="setApproval()"
-            [disabled]="!vault.active || vault.strategy.paused">
+            [disabled]="!vault.active || vault.strategy.paused"
+          >
             <span *ngIf="vault.active">Approve</span>
             <span *ngIf="!vault.active">Inactive</span>
           </button>
@@ -132,14 +114,14 @@
             *ngIf="vault.contractApproved"
             mat-raised-button
             class="float-right quartz-btn"
-            [disabled]="!vault.contractApproved
-            || !vault.active
-            || !vault.userLpWalletBalance
-            || vault.strategy.paused
-            || vault.depositLimitReached
-            || vault.name === 'AMES-UST'"
-            (click)="setVaultDepositAll()">
-
+            [disabled]="
+              !vault.contractApproved ||
+              !vault.active ||
+              !vault.userLpWalletBalance ||
+              vault.strategy.paused
+            "
+            (click)="setVaultDepositAll()"
+          >
             <span *ngIf="vault.active">Deposit All</span>
             <span *ngIf="!vault.active">Inactive</span>
           </button>
@@ -148,33 +130,39 @@
             *ngIf="vault.contractApproved"
             mat-raised-button
             class="float-right quartz-btn"
-            [disabled]="!vault.active
-            || !vault.userLpWalletBalance
-            || vault.strategy.paused
-            || vault.depositLimitReached
-            || vault.name === 'AMES-UST'"
-            (click)="setVaultDeposit()">
+            [disabled]="
+              !vault.active ||
+              !vault.userLpWalletBalance ||
+              vault.strategy.paused
+            "
+            (click)="setVaultDeposit()"
+          >
             <span *ngIf="vault.active">Deposit</span>
             <span *ngIf="!vault.active">Inactive</span>
           </button>
         </div>
 
-        <ul class="list-group list-group-horizontal-sm" style="margin-top: 15px;">
+        <ul
+          class="list-group list-group-horizontal-sm"
+          style="margin-top: 15px"
+        >
           <li class="list-group-item theme-background">Deposit Fee: 0%</li>
-          <li class="list-group-item theme-background">Withdrawal Fee: {{ vault.strategy.withdrawlFee }}%</li>
-          <li class="list-group-item theme-background" *ngIf="vault.isV2 || vault.protocolVersion">
-            Protocol Withdrawal Fee: {{ vault.strategy.protocolWithdrawFee || 0 }}%
+          <li class="list-group-item theme-background">
+            Withdrawal Fee: {{ vault.strategy.withdrawlFee }}%
+          </li>
+          <li
+            class="list-group-item theme-background"
+            *ngIf="vault.isProtocolVersion"
+          >
+            Protocol Withdrawal Fee:
+            {{ vault.strategy.protocolWithdrawFee || 0 }}%
           </li>
         </ul>
       </div>
 
       <div class="col-md-6 clearfix deposit-withdrawl">
         <mat-form-field appearance="outline">
-          <input
-          type="text"
-          matInput
-          #withdrawInput
-          [disabled]="true">
+          <input type="text" matInput #withdrawInput [disabled]="true" />
         </mat-form-field>
         <mat-slider
           [disabled]="!vault.userLpDepositBalanceUI"
@@ -183,30 +171,29 @@
           [step]="1"
           thumbLabel
           tickInterval="25"
-          (input)="onWithdrawSliderInputChange($event.value)">
+          (input)="onWithdrawSliderInputChange($event.value)"
+        >
         </mat-slider>
 
         <div class="range-meter clearfix">
-          <span class="range-meter-num">
-            0%
-          </span>
-          <span class="range-meter-num float-right">
-            100%
-          </span>
+          <span class="range-meter-num"> 0% </span>
+          <span class="range-meter-num float-right"> 100% </span>
         </div>
 
         <button
           mat-raised-button
           class="float-right quartz-btn"
           [disabled]="!vault.userLpDepositBalanceUI"
-          (click)="setVaultWithdrawAll()">
+          (click)="setVaultWithdrawAll()"
+        >
           Withdraw All
         </button>
         <button
           mat-raised-button
           class="float-right quartz-btn"
           [disabled]="!vault.userLpDepositBalanceUI"
-          (click)="setVaultWithdraw()">
+          (click)="setVaultWithdraw()"
+        >
           Withdraw
         </button>
       </div>

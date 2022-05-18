@@ -3,35 +3,31 @@ import {
   ASHARE_INPUT_OPTION,
   BNB_INPUT_OPTION,
   BUSD_INPUT_OPTION,
-  UST_INPUT_OPTION,
 } from '../common/zap-input-options';
 import { TOKENS } from '../tokens';
 import { PANCAKESWAP_ROUTER_ADDRESS } from './bsc-addresses';
-import {
-  PAIR_AMETHYST_ASHARE_PAIR_ADDRESS_BSC,
-  PAIR_UST_AMETHYST_BSC,
-} from './pairs';
-import { VAULT_AMETHYST_ASHARE_BSC, VAULT_AMETHYST_UST_BSC } from './vaults';
+import { PAIR_AMETHYST_BUSD_BSC } from './pairs';
+import { VAULT_AMETHYST_BUSD_BSC } from './vaults';
 
 export const ZAP_UST_AMES_BSC: IZapPool = {
   active: true,
-  name: 'AMES-UST',
-  poolId: 0,
-  pairAddress: PAIR_UST_AMETHYST_BSC,
+  name: 'AMES-BUSD',
+  poolId: 9,
+  pairAddress: PAIR_AMETHYST_BUSD_BSC,
   token0: null,
   token1: null,
   routerAddress: PANCAKESWAP_ROUTER_ADDRESS,
   pair: null,
   tokenInAddress: null,
   tokenInAmount: null,
-  logoPath: 'assets/ames-ust-lp-logo.svg',
+  logoPath: 'assets/ames-busd.png',
   tokenInputOptions: [
-    {
-      ...UST_INPUT_OPTION,
-      address: TOKENS.UST.BSC,
-      pathTokenInToLp0: [TOKENS.UST.BSC],
-      pathTokenInToLp1: [TOKENS.UST.BSC, TOKENS.AMETHYST.BSC],
-    },
+    // {
+    //   ...UST_INPUT_OPTION,
+    //   address: TOKENS.UST.BSC,
+    //   pathTokenInToLp0: [TOKENS.UST.BSC],
+    //   pathTokenInToLp1: [TOKENS.UST.BSC, TOKENS.AMETHYST.BSC],
+    // },
     // {
     //   ...BNB_INPUT_OPTION,
     //   address: TOKENS.BNB.BSC,
@@ -41,11 +37,11 @@ export const ZAP_UST_AMES_BSC: IZapPool = {
     {
       ...BUSD_INPUT_OPTION,
       address: TOKENS.BUSD.BSC,
-      pathTokenInToLp0: [TOKENS.BUSD.BSC, TOKENS.UST.BSC],
-      pathTokenInToLp1: [TOKENS.BUSD.BSC, TOKENS.UST.BSC, TOKENS.AMETHYST.BSC],
+      pathTokenInToLp0: [TOKENS.BUSD.BSC, TOKENS.AMETHYST.BSC],
+      pathTokenInToLp1: [TOKENS.BUSD.BSC],
     },
   ],
-  vault: VAULT_AMETHYST_UST_BSC,
+  vault: VAULT_AMETHYST_BUSD_BSC,
 };
 
 // export const ZAP_AMES_ASHARE_BSC: IZapPool = {
