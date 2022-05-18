@@ -7,6 +7,10 @@ import { Web3Service } from 'src/lib/services/web3.service';
 import { trigger, transition, useAnimation } from '@angular/animations';
 import { fadeIn } from 'ng-animate';
 import { IVault } from 'src/lib/types/vault.types';
+import { IZapResult, ZapInput } from 'src/lib/types/zap.types';
+import { MatDialog } from '@angular/material/dialog';
+import { ZapInComponent } from '../zap-in/zap-in.component';
+import { ZapService } from 'src/lib/services/zaps/zap.service';
 
 @Component({
   selector: 'quartz-vault-container',
@@ -25,7 +29,9 @@ export class VaultsContainerComponent implements OnDestroy {
     private readonly web3: Web3Service,
     public readonly vaultService: VaultService,
     private readonly snackBar: MatSnackBar,
-    private readonly watcher: DataWatchService
+    private readonly watcher: DataWatchService,
+    private readonly dialog: MatDialog,
+    private readonly zapService: ZapService
   ) {
     this.web3.web3.subscribe((web3Info) => {
       if (web3Info) {
@@ -65,7 +71,21 @@ export class VaultsContainerComponent implements OnDestroy {
   }
 
   async doZap(vault: IVault) {
-    //
+    vault.loading = true;
+    console.log(vault.zap);
+    vault.zap = await this.zapService.initZap(vault.zap);
+    const dialogRef = this.dialog.open(ZapInComponent, {
+      data: {
+        zapper: vault.zap,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (zapResult: IZapResult) => {
+      if (zapResult?.lpTokensUI) {
+        await this.vaultService.deposit(vault, zapResult.lpTokensBN, true);
+      }
+      vault.loading = false;
+    });
   }
 
   ngOnDestroy(): void {

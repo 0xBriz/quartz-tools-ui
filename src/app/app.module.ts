@@ -12,6 +12,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -24,6 +25,7 @@ import { ZapContainerComponent } from './components/zap-container/zap-container.
 import { ZapInComponent } from './components/zap-in/zap-in.component';
 import { PriceButtonComponent } from './components/price-button/price-button.component';
 import { ZapButtonComponent } from './components/zap-button/zap-button.component';
+import { ZapDialogComponent } from './components/zap-dialog/zap-dialog.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +38,7 @@ import { ZapButtonComponent } from './components/zap-button/zap-button.component
     ConnectWalletButtonComponent,
     PriceButtonComponent,
     ZapButtonComponent,
+    ZapDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -54,6 +57,7 @@ import { ZapButtonComponent } from './components/zap-button/zap-button.component
     MatSliderModule,
     MatSnackBarModule,
     MatIconModule,
+    MatDialogModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

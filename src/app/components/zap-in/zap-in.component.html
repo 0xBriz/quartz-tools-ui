@@ -133,7 +133,7 @@
       <div class="col-md-12">
         <span class="bold">LP tokens: {{ zapResult.lpTokensUI }}</span>
       </div>
-      <div class="col-md-12" style="margin-top: 5px">
+      <div class="col-md-12" style="margin-top: 5px" *ngIf="!dialogMode">
         <button
           mat-raised-button
           color="primary"
@@ -156,6 +156,7 @@
   </mat-card-content>
 
   <mat-card-actions align="end">
+    <button mat-raised-button mat-dialog-close *ngIf="dialogMode">Close</button>
     <button
       mat-raised-button
       color="primary"

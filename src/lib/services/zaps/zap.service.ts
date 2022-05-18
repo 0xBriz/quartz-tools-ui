@@ -5,6 +5,7 @@ import { AMES_CONTRACTS } from 'src/lib/data/contract';
 import { ZAPS } from 'src/lib/data/zaps';
 import { ERC20 } from 'src/lib/types/classes/erc20';
 import { Pair } from 'src/lib/types/classes/pair';
+import { IVault } from 'src/lib/types/vault.types';
 import {
   ChainZapInfo,
   IZapPool,
@@ -89,9 +90,14 @@ export class ZapService extends CommonServiceEvents {
 
   async zapInWithPath(zapInput: ZapInput) {
     try {
+      if (!this._zaps.value.length) {
+        await this.setZapData(this.web3.web3Info.chainId);
+      }
+
       const zapInfo = this._zaps.value.find(
         (z) => z.pairAddress === zapInput.pairAddress
       );
+
       // Read routing path mapping for selected input token
       const tokenOptions = zapInfo.tokenInputOptions.find(
         (opt) => opt.address == zapInput.tokenInAddress
@@ -189,6 +195,20 @@ export class ZapService extends CommonServiceEvents {
     };
   }
 
+  async zapInVault(vault: IVault) {
+    try {
+      // const input: ZapInput = {
+      //   tokenInAddress: tokenIn.address,
+      //   pairAddress: this.zap.pairAddress,
+      //   tokenInAmount,
+      //   tokenInAmountBN,
+      // };
+      const zap = await this.initZap(vault.zap);
+    } catch (error) {
+      this._error.next('Error approving contract');
+    }
+  }
+
   async approveZapperIfNeeded(
     tokenInAddress: string,
     amountIn: ethers.BigNumber
@@ -220,32 +240,36 @@ export class ZapService extends CommonServiceEvents {
     try {
       const zappers: IZapPool[] = [];
       for (const zap of this._chainZapData.ZAPS) {
-        const zapIn: IZapPool = {
-          ...zap,
-        };
-        if (!zapIn.pair) {
-          zapIn.pair = new Pair(zapIn.pairAddress, this.web3.web3Info.signer);
-        }
-
-        if (!zapIn.token0 || !zapIn.token1) {
-          zapIn.token0 = new ERC20(
-            await zapIn.pair.token0(),
-            this.web3.web3Info.signer
-          );
-          zapIn.token0 = new ERC20(
-            await zapIn.pair.token1(),
-            this.web3.web3Info.signer
-          );
-        }
-
-        zapIn.tokenInputOptions = zap.tokenInputOptions;
-
-        zappers.push(zapIn);
+        zappers.push(await this.initZap(zap));
       }
 
       return zappers;
     } catch (error) {
       throw error;
     }
+  }
+
+  async initZap(zap: IZapPool) {
+    const zapIn: IZapPool = {
+      ...zap,
+    };
+    if (!zapIn.pair) {
+      zapIn.pair = new Pair(zapIn.pairAddress, this.web3.web3Info.signer);
+    }
+
+    if (!zapIn.token0 || !zapIn.token1) {
+      zapIn.token0 = new ERC20(
+        await zapIn.pair.token0(),
+        this.web3.web3Info.signer
+      );
+      zapIn.token0 = new ERC20(
+        await zapIn.pair.token1(),
+        this.web3.web3Info.signer
+      );
+    }
+
+    zapIn.tokenInputOptions = zap.tokenInputOptions;
+
+    return zapIn;
   }
 }
