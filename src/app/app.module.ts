@@ -59,7 +59,6 @@ import { ZapDialogComponent } from './components/zap-dialog/zap-dialog.component
     MatIconModule,
     MatDialogModule,
   ],
-  providers: [],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

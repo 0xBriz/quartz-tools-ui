@@ -8,8 +8,9 @@ import { TOKENS } from '../tokens';
 import {
   PANCAKESWAP_ROUTER_ADDRESS,
   VAULT_AMETHYST_BUSD_ADDRESS_BSC,
+  VAULT_ASHARE_BUSD_ADDRESS_BSC,
 } from './bsc-addresses';
-import { PAIR_AMETHYST_BUSD_BSC } from './pairs';
+import { PAIR_AMETHYST_BUSD_BSC, PAIR_ASHARE_BUSD_BSC } from './pairs';
 
 export const ZAP_AMES_BUSD_BSC: IZapPool = {
   active: true,
@@ -24,12 +25,6 @@ export const ZAP_AMES_BUSD_BSC: IZapPool = {
   tokenInAmount: null,
   logoPath: 'assets/ames-busd.png',
   tokenInputOptions: [
-    // {
-    //   ...UST_INPUT_OPTION,
-    //   address: TOKENS.UST.BSC,
-    //   pathTokenInToLp0: [TOKENS.UST.BSC],
-    //   pathTokenInToLp1: [TOKENS.UST.BSC, TOKENS.AMETHYST.BSC],
-    // },
     // {
     //   ...BNB_INPUT_OPTION,
     //   address: TOKENS.BNB.BSC,
@@ -56,50 +51,34 @@ export const ZAP_AMES_BUSD_BSC: IZapPool = {
   vaultAddress: VAULT_AMETHYST_BUSD_ADDRESS_BSC,
 };
 
-// export const ZAP_AMES_ASHARE_BSC: IZapPool = {
-//   active: true,
-//   name: 'AMES-ASHARE',
-//   poolId: 5,
-//   pairAddress: PAIR_AMETHYST_ASHARE_PAIR_ADDRESS_BSC,
-//   token0: null,
-//   token1: null,
-//   routerAddress: PANCAKESWAP_ROUTER_ADDRESS,
-//   pair: null,
-//   tokenInAddress: null,
-//   tokenInAmount: null,
-//   logoPath: 'assets/ames-ashare-lp-logo.svg',
-//   path: [],
-//   tokenInputOptions: [
-//     {
-//       ...ASHARE_INPUT_OPTION,
-//       address: TOKENS.ASHARE.BSC,
-//       pathTokenInToLp0: [TOKENS.ASHARE.BSC, TOKENS.AMETHYST.BSC],
-//       pathTokenInToLp1: [TOKENS.ASHARE.BSC],
-//     },
-//     {
-//       ...UST_INPUT_OPTION,
-//       address: TOKENS.UST.BSC,
-//       pathTokenInToLp0: [TOKENS.UST.BSC, TOKENS.AMETHYST.BSC],
-//       pathTokenInToLp1: [
-//         TOKENS.UST.BSC,
-//         TOKENS.AMETHYST.BSC,
-//         TOKENS.ASHARE.BSC,
-//       ],
-//     },
-//     {
-//       ...BUSD_INPUT_OPTION,
-//       address: TOKENS.BUSD.BSC,
-//       pathTokenInToLp0: [TOKENS.BUSD.BSC, TOKENS.UST.BSC, TOKENS.AMETHYST.BSC],
-//       pathTokenInToLp1: [
-//         TOKENS.BUSD.BSC,
-//         TOKENS.UST.BSC,
-//         TOKENS.AMETHYST.BSC,
-//         TOKENS.ASHARE.BSC,
-//       ],
-//     },
-//   ],
-//   vault: VAULT_AMETHYST_ASHARE_BSC,
-// };
+export const ZAP_ASHARE_BUSD_BSC: IZapPool = {
+  active: true,
+  name: 'ASHARE-BUSD',
+  poolId: 8,
+  pairAddress: PAIR_ASHARE_BUSD_BSC,
+  token0: null,
+  token1: null,
+  routerAddress: PANCAKESWAP_ROUTER_ADDRESS,
+  pair: null,
+  tokenInAddress: null,
+  tokenInAmount: null,
+  logoPath: 'assets/ashare-busd.png',
+  tokenInputOptions: [
+    // {
+    //   ...BNB_INPUT_OPTION,
+    //   address: TOKENS.BNB.BSC,
+    //   pathTokenInToLp0: [TOKENS.BNB.BSC, TOKENS.UST.BSC],
+    //   pathTokenInToLp1: [TOKENS.BNB.BSC, TOKENS.UST.BSC, TOKENS.AMETHYST.BSC],
+    // },
+    {
+      ...BUSD_INPUT_OPTION,
+      address: TOKENS.BUSD.BSC,
+      pathTokenInToLp0: [TOKENS.BUSD.BSC],
+      pathTokenInToLp1: [TOKENS.BUSD.BSC, TOKENS.ASHARE.BSC],
+    },
+  ],
+  vaultAddress: VAULT_ASHARE_BUSD_ADDRESS_BSC,
+};
 
 // export const ZAP_AMES_SINGLE_STAKE_BSC: IZapPool = {
 //   active: true,
@@ -146,5 +125,5 @@ export const ZAP_AMES_BUSD_BSC: IZapPool = {
 // };
 
 export const ZAPS_BSC: ChainZapInfo = {
-  ZAPS: [ZAP_AMES_BUSD_BSC],
+  ZAPS: [ZAP_AMES_BUSD_BSC, ZAP_ASHARE_BUSD_BSC],
 };

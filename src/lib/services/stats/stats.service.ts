@@ -19,8 +19,14 @@ export class StatsService {
   async getVaultUserStats(vaultRef: IVault, userAddress: string) {
     try {
       try {
+        console.log(await this.rewardPool.poolInfo(8));
+        const pair = new Pair(
+          '0x91da56569559b0629f076dE73C05696e34Ee05c1',
+          this.web3.web3Info.signer
+        );
+        console.log(await pair.token0());
+        console.log(await pair.token1());
         let userWalletBalance: FormattedResult;
-
         if (vaultRef.isSingleStake) {
           const stakeToken = new ERC20(
             vaultRef.lpAddress,

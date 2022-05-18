@@ -11,6 +11,8 @@ import { IZapResult, ZapInput } from 'src/lib/types/zap.types';
 import { MatDialog } from '@angular/material/dialog';
 import { ZapInComponent } from '../zap-in/zap-in.component';
 import { ZapService } from 'src/lib/services/zaps/zap.service';
+import { ZapDialogComponent } from '../zap-dialog/zap-dialog.component';
+import { Pair } from 'src/lib/types/classes/pair';
 
 @Component({
   selector: 'quartz-vault-container',
@@ -74,7 +76,7 @@ export class VaultsContainerComponent implements OnDestroy {
     vault.loading = true;
     console.log(vault.zap);
     vault.zap = await this.zapService.initZap(vault.zap);
-    const dialogRef = this.dialog.open(ZapInComponent, {
+    const dialogRef = this.dialog.open(ZapDialogComponent, {
       data: {
         zapper: vault.zap,
       },

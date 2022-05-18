@@ -1,1 +1,12 @@
-<p>zap-dialog works!</p>
+<div>
+  <span style="font-size: 14px; font-weight: bold">
+    * Requires {{ transactionCount }} transactions
+  </span>
+</div>
+
+<div mat-dialog-content style="padding: 5px">
+  <quartz-zap-in
+    [zap]="data.zapper"
+    (zapped)="handleZapResult($event)"
+  ></quartz-zap-in>
+</div>

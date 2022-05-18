@@ -23,7 +23,7 @@ import {
 import { BINANCE_SMART_CHAIN } from '../chains';
 import { TOKENS } from '../tokens';
 import { getAmethystPrice, getAsharePrice } from './pricing';
-import { ZAP_AMES_BUSD_BSC } from './zaps';
+import { ZAP_AMES_BUSD_BSC, ZAP_ASHARE_BUSD_BSC } from './zaps';
 
 export const V2_VAULT_AMETHYST_UST_BSC: IVault = {
   active: true,
@@ -117,7 +117,7 @@ export const VAULT_ASHARE_BUSD_BSC: IVault = {
   active: true,
   chainId: BINANCE_SMART_CHAIN.chainId,
   name: 'ASHARE-BUSD',
-  poolId: 1,
+  poolId: 8,
   vaultAddress: VAULT_ASHARE_BUSD_ADDRESS_BSC,
   lpAddress: PAIR_ASHARE_BUSD_BSC,
   userLpWalletBalance: 0,
@@ -140,6 +140,7 @@ export const VAULT_ASHARE_BUSD_BSC: IVault = {
   compoundsDaily: BINANCE_SMART_CHAIN.compoundsGuessimate,
   isSingleStake: false,
   isProtocolVersion: true,
+  zap: ZAP_ASHARE_BUSD_BSC,
 };
 
 const VAULT_SINGLE_STAKE_AMETHYST: IVault = {
@@ -206,6 +207,7 @@ const V2_VAULT_SINGLE_STAKE_AMETHYST: IVault = {
 
 export const VAULTS_BSC = [
   VAULT_AMETHYST_BUSD_BSC,
+  VAULT_ASHARE_BUSD_BSC,
   V2_VAULT_SINGLE_STAKE_AMETHYST,
   V2_VAULT_AMETHYST_UST_BSC,
   V2_VAULT_ASHARE_UST_BSC,

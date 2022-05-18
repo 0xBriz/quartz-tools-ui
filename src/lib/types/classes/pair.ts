@@ -24,7 +24,7 @@ export class Pair extends ERC20TokenBase implements IPair {
 
   async token1() {
     if (!this._addressToken1) {
-      this._addressToken1 = await this.contract.token0();
+      this._addressToken1 = await this.contract.token1();
     }
 
     return this._addressToken1;

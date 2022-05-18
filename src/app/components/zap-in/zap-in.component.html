@@ -1,8 +1,12 @@
 <mat-card class="theme-background">
   <mat-card-header>
     <mat-card-title>
-      <img class="header-image" src="{{ zap.logoPath }}" />
-      {{ zap.name }}
+      <div>
+        <img class="header-image" src="{{ zap.logoPath }}" />
+        <span>
+          {{ zap.name }}
+        </span>
+      </div>
     </mat-card-title>
   </mat-card-header>
 
@@ -126,14 +130,14 @@
 
     <div
       class="row"
-      *ngIf="zapResult?.lpTokensUI > 0"
+      *ngIf="!dialogMode && zapResult?.lpTokensUI > 0"
       style="margin-top: 5px"
       [@fadeIn]="fadeIn"
     >
       <div class="col-md-12">
         <span class="bold">LP tokens: {{ zapResult.lpTokensUI }}</span>
       </div>
-      <div class="col-md-12" style="margin-top: 5px" *ngIf="!dialogMode">
+      <div class="col-md-12" style="margin-top: 5px">
         <button
           mat-raised-button
           color="primary"
@@ -156,7 +160,6 @@
   </mat-card-content>
 
   <mat-card-actions align="end">
-    <button mat-raised-button mat-dialog-close *ngIf="dialogMode">Close</button>
     <button
       mat-raised-button
       color="primary"

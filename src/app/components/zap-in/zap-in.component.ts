@@ -1,7 +1,6 @@
-import { Component, Inject, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ethers } from 'ethers';
-import { RewardPool } from 'src/lib/services/reward-pool/reward-pool';
 import { TokenService } from 'src/lib/services/tokens/token.service';
 import { ZapService } from 'src/lib/services/zaps/zap.service';
 import {
@@ -13,7 +12,6 @@ import {
 import { ensureEtherFormat } from 'src/lib/utils/formatting';
 import { trigger, transition, useAnimation } from '@angular/animations';
 import { fadeIn } from 'ng-animate';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'quartz-zap-in',
@@ -22,9 +20,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   animations: [trigger('fadeIn', [transition('* => *', useAnimation(fadeIn))])],
 })
 export class ZapInComponent implements OnInit {
-  fadeIn: any;
-
   @Input() zap: IZapPool;
+  @Output() zapped: EventEmitter<IZapResult>;
+  fadeIn: any;
   zapGroup: FormGroup;
 
   private lastBalanceCheck = null;
@@ -34,6 +32,8 @@ export class ZapInComponent implements OnInit {
   runningZap = false;
 
   zapResult: IZapResult;
+  dialogMode = false;
+
   depositing = false;
   depositingTo = null;
   depositResult: {
@@ -41,20 +41,14 @@ export class ZapInComponent implements OnInit {
     explorerLink?: string;
   };
 
-  dialogMode = false;
-
   constructor(
     private readonly tokenService: TokenService,
-    public readonly zapService: ZapService,
-    @Inject(MAT_DIALOG_DATA) public data: { zapper: IZapPool },
-    private dialogRef: MatDialogRef<ZapInComponent>
-  ) {}
+    public readonly zapService: ZapService
+  ) {
+    this.zapped = new EventEmitter();
+  }
 
   async ngOnInit() {
-    if (!this.zap) {
-      this.dialogMode = true;
-      this.zap = this.data.zapper;
-    }
     this.zapGroup = new FormGroup({
       tokenIn: new FormControl(null, [Validators.required]),
       tokenInAmount: new FormControl(null, [Validators.required]),
@@ -85,9 +79,7 @@ export class ZapInComponent implements OnInit {
       this.reset();
       this.zapResult = zapResult;
 
-      if (this.dialogMode) {
-        this.dialogRef.close(this.zapResult);
-      }
+      this.zapped.next(zapResult);
     }
   }
 

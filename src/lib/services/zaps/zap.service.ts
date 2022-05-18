@@ -97,6 +97,8 @@ export class ZapService extends CommonServiceEvents {
       const zapInfo = this._zaps.value.find(
         (z) => z.pairAddress === zapInput.pairAddress
       );
+      // const userFilter = zapInfo.pair.filters.Transfer(null, this.web3.web3Info.userAddress)
+      // zapInfo.pair.contract.once(userFilter, () => {});
 
       // Read routing path mapping for selected input token
       const tokenOptions = zapInfo.tokenInputOptions.find(
