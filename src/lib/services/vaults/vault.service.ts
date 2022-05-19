@@ -230,6 +230,7 @@ export class VaultService {
       );
       if (allowance.value.lt(amount)) {
         await this.approveVault(vault);
+        vault.contractApproved = true;
       }
       this._operationActive.next(null);
     } catch (error) {
@@ -250,12 +251,6 @@ export class VaultService {
       );
       await tokenContract.approve(vault.vaultAddress, amount);
       vault.contractApproved = true;
-
-      let allowance = await tokenContract.allowance(
-        this.web3.web3Info.userAddress,
-        vault.vaultAddress
-      );
-      console.log(formatEther(allowance.value));
 
       this._operationActive.next('Approvals complete.');
     } catch (error) {

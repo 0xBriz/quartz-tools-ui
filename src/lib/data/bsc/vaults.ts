@@ -2,17 +2,17 @@ import { ethers } from 'ethers';
 import { IVault } from '../../types/vault.types';
 import {
   V2_STRAT_ASHARE_UST_ADDRESS_BSC,
-  STRAT_SINGLE_STAKE_AMETHYST_ADDRESS_BSC,
   V2_STRAT_AMETHYST_UST_ADDRESS_BSC,
   V2_VAULT_AMETHYST_UST_ADDRESS_BSC,
   V2_VAULT_ASHARE_UST_ADDRESS_BSC,
-  VAULT_SINGLE_STAKE_AMETHYST_ADDRESS_BSC,
   V2_STRAT_SINGLE_STAKE_AMETHYST_ADDRESS_BSC,
   V2_VAULT_SINGLE_STAKE_AMETHYST_ADDRESS_BSC,
   STRAT_AMETHYST_BUSD_ADDRESS_BSC,
   STRAT_ASHARE_BUSD_ADDRESS_BSC,
   VAULT_AMETHYST_BUSD_ADDRESS_BSC,
   VAULT_ASHARE_BUSD_ADDRESS_BSC,
+  VAULT_AMETHYST_SINGLE_ADDRESS_BSC,
+  STRAT_AMETHYST_SINGLE_ADDRESS_BSC,
 } from './bsc-addresses';
 import {
   PAIR_UST_AMETHYST_BSC,
@@ -146,9 +146,9 @@ export const VAULT_ASHARE_BUSD_BSC: IVault = {
 const VAULT_SINGLE_STAKE_AMETHYST: IVault = {
   active: true,
   chainId: BINANCE_SMART_CHAIN.chainId,
-  name: 'X-AMES',
+  name: 'AMES',
   poolId: 6,
-  vaultAddress: VAULT_SINGLE_STAKE_AMETHYST_ADDRESS_BSC,
+  vaultAddress: VAULT_AMETHYST_SINGLE_ADDRESS_BSC,
   lpAddress: TOKENS.AMETHYST.BSC,
   userLpWalletBalance: 0,
   walletBalanceBN: ethers.constants.Zero,
@@ -162,7 +162,7 @@ const VAULT_SINGLE_STAKE_AMETHYST: IVault = {
   logoURI: 'assets/ames-logo.svg',
   contractApproved: false,
   strategy: {
-    address: STRAT_SINGLE_STAKE_AMETHYST_ADDRESS_BSC,
+    address: STRAT_AMETHYST_SINGLE_ADDRESS_BSC,
   },
   fetchPriceToken0: getAmethystPrice,
   fetchPriceToken1: async () => {
@@ -177,7 +177,7 @@ const VAULT_SINGLE_STAKE_AMETHYST: IVault = {
 const V2_VAULT_SINGLE_STAKE_AMETHYST: IVault = {
   active: true,
   chainId: BINANCE_SMART_CHAIN.chainId,
-  name: 'X-AMES',
+  name: 'AMES',
   poolId: 6,
   vaultAddress: V2_VAULT_SINGLE_STAKE_AMETHYST_ADDRESS_BSC,
   lpAddress: TOKENS.AMETHYST.BSC,
@@ -208,6 +208,7 @@ const V2_VAULT_SINGLE_STAKE_AMETHYST: IVault = {
 export const VAULTS_BSC = [
   VAULT_AMETHYST_BUSD_BSC,
   VAULT_ASHARE_BUSD_BSC,
+  VAULT_SINGLE_STAKE_AMETHYST,
   V2_VAULT_SINGLE_STAKE_AMETHYST,
   V2_VAULT_AMETHYST_UST_BSC,
   V2_VAULT_ASHARE_UST_BSC,
