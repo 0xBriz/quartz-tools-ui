@@ -23,7 +23,7 @@ import { Web3Service } from '../web3.service';
 
 @Injectable({ providedIn: 'root' })
 export class ZapService extends CommonServiceEvents {
-  private _contract: ethers.Contract;
+  contract: ethers.Contract;
 
   private _zaps = new BehaviorSubject<IZapPool[]>([]);
   get zaps() {
@@ -60,7 +60,7 @@ export class ZapService extends CommonServiceEvents {
   }
 
   async getZapFee() {
-    const fee = await this._contract.zapFee();
+    const fee = await this.contract.zapFee();
     this.fee = fee.toNumber();
   }
 
@@ -84,7 +84,7 @@ export class ZapService extends CommonServiceEvents {
         throw new Error('setContract: Dafuq?');
       }
 
-      this._contract = new ethers.Contract(
+      this.contract = new ethers.Contract(
         address,
         ZAPPER_ABI,
         this.web3.web3Info.signer
@@ -123,7 +123,7 @@ export class ZapService extends CommonServiceEvents {
         zapInput.tokenInAmountBN
       );
 
-      const tx = await this._contract.zapInWithPath(
+      const tx = await this.contract.zapInWithPath(
         zapInput.tokenInAddress,
         zapInput.pairAddress,
         zapInput.tokenInAmountBN,
@@ -225,12 +225,12 @@ export class ZapService extends CommonServiceEvents {
       const tokenIn = new ERC20(tokenInAddress, this.web3.web3Info.signer);
       const allowance = await tokenIn.allowance(
         this.web3.web3Info.userAddress,
-        this._contract.address
+        this.contract.address
       );
 
       if (allowance.value.lt(amountIn)) {
         await tokenIn.approve(
-          this._contract.address,
+          this.contract.address,
           ethers.constants.MaxUint256
         );
       }
