@@ -125,12 +125,6 @@ export class VaultService {
         this.web3.web3Info.provider
       );
 
-      if (vault.isProtocolVersion) {
-        const protocolWithdrawalFee =
-          await vault.stratRef.protocolWithdrawalFee();
-        vault.strategy.protocolWithdrawFee = protocolWithdrawalFee / 10;
-      }
-
       // Get/set basic vault token info
       const [name, symbol, paused, withdrawalFee] = await Promise.all([
         vault.contract.name(),
@@ -142,7 +136,15 @@ export class VaultService {
       vault.tokenName = name;
       vault.symbol = symbol;
       vault.strategy.paused = paused;
-      vault.strategy.withdrawlFee = withdrawalFee;
+      vault.strategy.withdrawlFee = paused ? 0 : withdrawalFee;
+
+      if (vault.isProtocolVersion) {
+        const protocolWithdrawalFee =
+          await vault.stratRef.protocolWithdrawalFee();
+        vault.strategy.protocolWithdrawFee = paused
+          ? 0
+          : protocolWithdrawalFee / 10;
+      }
     } catch (error) {
       console.error(error);
       this._error.next(new Error(`Error initializing vault: ${vault.name}`));

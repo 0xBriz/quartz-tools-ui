@@ -31,8 +31,11 @@ export class StatsService {
           userWalletBalance = await pair.balanceOf(userAddress);
         }
 
+        console.log(userWalletBalance);
+
         // Value of users balance
-        const walletBalanceBN: ethers.BigNumber = userWalletBalance.value;
+        const walletBalanceBN: ethers.BigNumber =
+          userWalletBalance.value || ethers.constants.Zero;
 
         const str = ethers.utils.formatEther(userWalletBalance.value);
         userWalletBalance = new FormattedResult(
