@@ -49,6 +49,8 @@ export class ZapInComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.zapService.getZapFee();
+    this.getInputTokenBalances();
     this.zapGroup = new FormGroup({
       tokenIn: new FormControl(null, [Validators.required]),
       tokenInAmount: new FormControl(null, [Validators.required]),

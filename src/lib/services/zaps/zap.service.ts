@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ContractReceipt, ethers } from 'ethers';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { ZAPPER_ABI } from 'src/lib/abis/zapper-abi';
 import { AMES_CONTRACTS } from 'src/lib/data/contract';
 import { ZAPS } from 'src/lib/data/zaps';
 import { ERC20 } from 'src/lib/types/classes/erc20';
@@ -36,6 +37,8 @@ export class ZapService extends CommonServiceEvents {
 
   private _chainZapData: ChainZapInfo;
 
+  fee: number;
+
   constructor(
     private readonly web3: Web3Service,
     private readonly rewardPool: RewardPool,
@@ -54,6 +57,11 @@ export class ZapService extends CommonServiceEvents {
         this.setContract(chain.chainId);
       }
     });
+  }
+
+  async getZapFee() {
+    const fee = await this._contract.zapFee();
+    this.fee = fee.toNumber();
   }
 
   async setZapData(chainId: number) {
@@ -78,9 +86,7 @@ export class ZapService extends CommonServiceEvents {
 
       this._contract = new ethers.Contract(
         address,
-        [
-          `function zapInWithPath(address, address, uint256, address, address[], address[]) public`,
-        ],
+        ZAPPER_ABI,
         this.web3.web3Info.signer
       );
     } catch (error) {
