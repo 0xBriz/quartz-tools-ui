@@ -2,8 +2,6 @@ import { ethers } from 'ethers';
 import { IVault } from '../../types/vault.types';
 import {
   V2_STRAT_ASHARE_UST_ADDRESS_BSC,
-  V2_STRAT_AMETHYST_UST_ADDRESS_BSC,
-  V2_VAULT_AMETHYST_UST_ADDRESS_BSC,
   V2_VAULT_ASHARE_UST_ADDRESS_BSC,
   V2_STRAT_SINGLE_STAKE_AMETHYST_ADDRESS_BSC,
   V2_VAULT_SINGLE_STAKE_AMETHYST_ADDRESS_BSC,
@@ -15,7 +13,6 @@ import {
   STRAT_AMETHYST_SINGLE_ADDRESS_BSC,
 } from './bsc-addresses';
 import {
-  PAIR_UST_AMETHYST_BSC,
   PAIR_ASHARE_UST_BSC,
   PAIR_AMETHYST_BUSD_BSC,
   PAIR_ASHARE_BUSD_BSC,
@@ -24,35 +21,6 @@ import { BINANCE_SMART_CHAIN } from '../chains';
 import { TOKENS } from '../tokens';
 import { getAmethystPrice, getAsharePrice } from './pricing';
 import { ZAP_AMES_BUSD_BSC, ZAP_ASHARE_BUSD_BSC } from './zaps';
-
-export const V2_VAULT_AMETHYST_UST_BSC: IVault = {
-  active: true,
-  chainId: BINANCE_SMART_CHAIN.chainId,
-  name: 'X-AMES-UST',
-  poolId: 0,
-  vaultAddress: V2_VAULT_AMETHYST_UST_ADDRESS_BSC,
-  lpAddress: PAIR_UST_AMETHYST_BSC,
-  userLpWalletBalance: 0,
-  walletBalanceBN: ethers.constants.Zero,
-  userLpDepositBalanceUI: 0,
-  userLpDepositBalanceBN: ethers.constants.Zero,
-  APY: 0,
-  dailyAPR: 0.0,
-  totalValueLocked: 0,
-  tvlChecked: false,
-  loading: false,
-  logoURI: 'assets/ames-ust-lp-logo.svg',
-  contractApproved: false,
-  strategy: {
-    address: V2_STRAT_AMETHYST_UST_ADDRESS_BSC,
-  },
-  fetchPriceToken0: async () => 1,
-  fetchPriceToken1: getAmethystPrice,
-  fetchRewardTokenPrice: getAsharePrice,
-  compoundsDaily: BINANCE_SMART_CHAIN.compoundsGuessimate,
-  isSingleStake: false,
-  isProtocolVersion: true,
-};
 
 export const V2_VAULT_ASHARE_UST_BSC: IVault = {
   active: true,
@@ -210,6 +178,5 @@ export const VAULTS_BSC = [
   VAULT_ASHARE_BUSD_BSC,
   VAULT_SINGLE_STAKE_AMETHYST,
   V2_VAULT_SINGLE_STAKE_AMETHYST,
-  V2_VAULT_AMETHYST_UST_BSC,
   V2_VAULT_ASHARE_UST_BSC,
 ];
