@@ -24,3 +24,11 @@ export const BUSD_INPUT_OPTION: TokenInputOption = {
   pathTokenInToLp0: [],
   pathTokenInToLp1: [],
 };
+
+export const USDC_INPUT_OPTION: TokenInputOption = {
+  tokenName: 'USDC',
+  address: '',
+  logoPath: TOKENS.USDC.logoPath,
+  pathTokenInToLp0: [],
+  pathTokenInToLp1: [],
+};

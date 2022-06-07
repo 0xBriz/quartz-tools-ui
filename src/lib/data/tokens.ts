@@ -33,6 +33,7 @@ export const TOKENS = {
     logoPath: '',
   },
   USDC: {
+    BSC: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
     HARMONY: '0x985458E523dB3d53125813eD68c274899e9DfAb4',
     logoPath:
       'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png?1547042389',
