@@ -16,7 +16,7 @@ export const BINANCE_SMART_CHAIN: ChainBaseConfig = {
   chainId: 56,
   blockTimeSeconds: 3,
   blocksPerYear: SECONDS_IN_YEAR / 3,
-  compoundsGuessimate: 2, //  Hard coded until API is set up
+  compoundsGuessimate: 1, //  Hard coded until API is set up
 };
 
 export const HARDHAT_CHAIN: ChainBaseConfig = {
